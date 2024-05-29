@@ -1,0 +1,21 @@
+.footer {
+    padding: 1rem 3rem;
+    background-color: #00032B;
+    color: #fff;
+    border-top: 1px solid #fff;
+    min-height: 10%;
+
+    p {
+        font-size: 1.4vw;
+        font-weight: 600;
+        a {
+            color: #fff;
+            text-decoration: none;
+        }
+    }
+
+    .mail {
+        width: 3.5vw;
+        cursor: pointer;
+    }
+}
