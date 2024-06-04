@@ -1,4 +1,5 @@
 const Course = require('../models/course.model');
+const axios = require('axios');
 
 const uploadCourse = async(req, reply) => {
     try {
@@ -18,9 +19,7 @@ const uploadCourse = async(req, reply) => {
 
 const editCourse = async(req, reply) => {
     try {
-        const data = req.body;
-
-        const id = req.params.id;
+        const {id, data} = req.body;
 
         const course = await Course.findByIdAndUpdate(id, {$set: data}, {new: true})
 
@@ -50,7 +49,22 @@ const getSingleCourse = async(req, reply) => {
 
 const getAllCourses = async(req, reply) => {
     try {
-        const courses = await Course.find(req.params.id)
+        const { id } = req.query;
+        const courses = await Course.find({teacher_id: id})
+
+        reply.code(200).send({
+            success: true,
+            courses,
+        });
+
+    } catch (error) {
+        return reply.code(400).send({ errorMessage: error.message })
+    }
+}
+
+const getCourses = async(req, reply) => {
+    try {
+        const courses = await Course.find()
 
         reply.code(200).send({
             success: true,
@@ -160,7 +174,8 @@ const addAnswer = async(req, reply) => {
 
 const deleteCourse = async (req, reply) => {
     try {
-        const { id } = req.params;
+        const { id } = req.query;
+        console.log(id)
 
         const course = await Course.findById(id);
 
@@ -174,12 +189,14 @@ const deleteCourse = async (req, reply) => {
 
         reply.code(200).send({
             success: true,
-            message: 'Course deleted successfully!',
+            message:"Course was deleted!",
         });
     } catch (error) {
         return reply.code(500).send({ errorMessage: error.message });
     }
 };
+
+
 
 module.exports = {
     uploadCourse,
@@ -188,5 +205,6 @@ module.exports = {
     getAllCourses,
     addQuestion,
     addAnswer,
-    deleteCourse
+    deleteCourse,
+    getCourses
 }

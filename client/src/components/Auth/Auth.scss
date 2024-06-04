@@ -19,7 +19,7 @@
         width: 30px;
         height: 30px;
         right: -330px;
-        top:-270px;
+        top: -270px;
 
         svg {
             width: 100%;
@@ -178,4 +178,16 @@
     
     }
 
+}
+
+@media only screen and (max-width: 800px) { 
+
+    .auth-popup {
+        margin-left: -2em;
+
+    }
+
+    .auth .close {
+        right: -300px;
+    }
 }

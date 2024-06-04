@@ -4,7 +4,25 @@ const Response = {
     type: 'object',
     properties: {
         success: { type: 'boolean' },
-        message: { type: 'string' }
+        message: { type: 'string' },
+        user: {
+          type: 'object',
+          properties: {
+            _id: {type: 'string'},
+            name: {type: 'string',},
+            email: {type: 'string'},
+            password: {type: 'string'},
+            avatar: {type: 'string'},
+            courses: {
+              type: 'array',
+              properties: {
+                    courseId:{type: 'string'},
+              },
+            },
+            role: {type: 'string'}
+          },
+
+         }
     }
 }
 
@@ -46,24 +64,6 @@ const logoutUserOpts = {
       },
     },
     handler: userController.logoutUser,
-}
-
-const activeUserOpts = {
-    schema: {
-        body: {
-            type: 'object',
-            required: ['activationToken'],
-            properties: {
-                activationToken: { type: 'string' }
-            }
-        },
-        response: {
-            200: Response,
-            400: Error,
-            500: Error
-        }
-    },
-    handler: userController.activateUser
 }
 
 const getUserOpts = {
@@ -120,6 +120,9 @@ const updateAvatarOpts = {
   },
   handler: userController.updateProfilePicture,
 }
+const getAllUserOpts = {
+  handler: userController.getAllUsers,
+}
 
 const deleteUserOpts = {
   schema: {
@@ -137,15 +140,15 @@ function userRoutes(fastify, options, done) {
 
     fastify.post('/register', registUserOpts);
 
-    fastify.post('/activate', activeUserOpts); 
-
     fastify.post('/login', loginUserOpts); 
 
     fastify.get('/logout', logoutUserOpts); 
 
-    fastify.get('/getuser', getUserOpts); 
+    fastify.get('/get-user', getUserOpts); 
 
-    fastify.post('/update-access-token', updateAccessTokenOpts);
+    fastify.get('/get-all-users', getAllUserOpts); 
+
+    fastify.post('/refresh', updateAccessTokenOpts);
 
     fastify.put('/update-user-info', updateUserInfoOpts); 
 

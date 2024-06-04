@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./Auth.scss";
-import { loginUser, registerUser } from "../../services/api";
+import { useDispatch } from 'react-redux';
+import { register, login } from '../../features/auth/authActions';
 
 
 const Auth = () => {
@@ -8,6 +9,7 @@ const Auth = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [role, setRole] = useState("student");
+    const dispatch = useDispatch();
 
     const handleCheckboxChange = (event) => {
         const value = event.target.value;
@@ -25,30 +27,25 @@ const Auth = () => {
         event.preventDefault();
 
         try {
-            const response = await registerUser({name, email, password, role })
-            const result = await response.json();
-  
-            console.log(result.message)
-        } catch (error) {
-            console.log(error)
-        }
+            await dispatch(register({ name, email, password, role })).unwrap();
+            console.log('User registered successfully');
+          } catch (error) {
+            console.error('Failed to register user:', error);
+          }
 
         document.querySelector('.auth').style.display = 'none';
         clearFields();
     };
 
-    const login = async(event) => {
+    const loginButton = async(event) => {
         event.preventDefault();
         
         try {
-            const response = await loginUser({email, password})
-            const result = await response.json();
-  
-            console.log(result.message)
+            await dispatch(login({ email, password })).unwrap();
+            console.log('User logged in successfully');
         } catch (error) {
-            console.log(error)
+            console.error('Failed to login:', error);
         }
-
         document.querySelector('.auth').style.display = 'none';
         clearFields();
     }
@@ -134,7 +131,7 @@ const Auth = () => {
                 </div>
 
                 <div className="login">
-                <form onSubmit={login}>
+                <form onSubmit={loginButton}>
                         <label htmlFor="chk" aria-hidden="true">Login</label>
                         <input 
                             type="email" 

@@ -11,9 +11,6 @@ const Home = () => {
                 <div className="text-container">
                     <h1>Improve Your Online Learning Experience Better Instantly</h1>
                     <p>Find the perfect course for you!</p>
-                    <form className="search-container">
-                        <input type="text" placeholder="Search course" />
-                    </form>
                 </div>
             </div>
         </div>

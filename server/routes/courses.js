@@ -4,7 +4,8 @@ const Response = {
     type: 'object',
     properties: {
         success: { type: 'boolean' },
-        message: { type: 'string' }
+        message: { type: 'string' },
+        response: {type: 'string'}
     }
 }
 
@@ -38,24 +39,10 @@ const editCourseOpts = {
 }
 
 const getSingleCOpts = {
-    schema: {
-        response: {
-            200: Response,
-            400: Error,
-            500: Error
-        }
-    },
     handler: courseController.getSingleCourse
 }
 
 const getAllCoursesOpts = {
-    schema: {
-        response: {
-            200: Response,
-            400: Error,
-            500: Error
-        }
-    },
     handler: courseController.getAllCourses
 }
 
@@ -82,33 +69,30 @@ const addAnswerOpts = {
 }
 
 const deleteCourseOpts = {
-  schema: {
-    response: {
-      200: Response,
-      400: Error,
-      500: Error
-    },
-  },
   handler: courseController.deleteCourse,
 }
 
+const getCoursesOpts = {
+  handler: courseController.getCourses,
+}
 
 function courseRoutes(fastify, options, done) {
 
-    fastify.post('/api/create-course', uploadCourseOpts);
+    fastify.post('/create-course', uploadCourseOpts);
 
-    fastify.put('/api/edit-course/:id', editCourseOpts);
+    fastify.put('/edit-course', editCourseOpts);
 
-    fastify.get('/api/get-single-course/:id', getSingleCOpts);
+    fastify.get('/get-single-course/:id', getSingleCOpts);
 
-    fastify.get('/api/get-all-courses/:id', getAllCoursesOpts);
+    fastify.get('/get-my-courses', getAllCoursesOpts);
 
-    fastify.put('/api/add-question', addQuestionOpts);
+    fastify.get('/get-courses', getCoursesOpts);
 
-    fastify.put('/api/add-answer', addAnswerOpts);
+    fastify.put('/add-question', addQuestionOpts);
 
-    fastify.delete('/delete-course/:id', deleteCourseOpts); 
+    fastify.put('/add-answer', addAnswerOpts);
 
+    fastify.delete('/delete-course', deleteCourseOpts); 
 
     done()
 }

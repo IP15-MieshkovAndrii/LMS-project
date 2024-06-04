@@ -48,8 +48,7 @@ const courseDataSchema = new mongoose.Schema({
 
 
 const courseSchema = new mongoose.Schema({
-    name: String,
-    type: {
+    name: {
         type: String,
         required: true
     },
@@ -73,7 +72,13 @@ const courseSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    teacherId: {
+        type: String,
+        required: true
+    },
     courseData: [courseDataSchema]
+}, {
+    timestamps: true 
 });
 
 const Course = mongoose.model('Course', courseSchema);

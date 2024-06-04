@@ -21,8 +21,8 @@ fastify.register(cors, {
 
 
 
-fastify.register(require('./routes/users'), { prefix: '/api/v1' });
-fastify.register(require('./routes/courses'), { prefix: '/api/v1' });
+fastify.register(require('./routes/users'), { prefix: '/api' });
+fastify.register(require('./routes/courses'), { prefix: '/api' });
 
 
 const start = async () => {

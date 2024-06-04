@@ -20,11 +20,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    avatar: {
-        type: String,
-        required: true,
-        default: {}
-    },
+    avatar: String,
     courses: {
         type: [{ 
             courseId: String

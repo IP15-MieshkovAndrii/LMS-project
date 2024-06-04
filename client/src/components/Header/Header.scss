@@ -5,6 +5,26 @@
     border-bottom: 1px solid #fff;
     min-height: 10%;
 
+    .user {
+        min-height: 1px;
+        min-width: 1px;
+        width: 3.5vw;
+        aspect-ratio: 1/1;
+        border-radius: 50%;
+        background-color: #fff;
+        object-fit: cover;
+        border: 2px solid black;
+        cursor: pointer;
+
+        img {
+            object-fit: cover;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+    }
+    
+
 }
 
 .header-left {
@@ -29,7 +49,7 @@
     margin: 0;
     padding: 0;
     display: flex;
-    justify-content: row;
+    align-items: center;
     gap: 1em;
 
     li {
@@ -58,4 +78,22 @@
     object-fit: cover;
     border: 2px solid black;
     cursor: pointer;
+}
+
+@media only screen and (max-width: 600px) { 
+
+    .header {
+        width: calc(100% - 2em);
+        padding: 0.5rem 1rem;
+        .logo {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .header-right {
+            font-size: 0.7rem;
+            gap: 0.1em;
+        }
+    }
+
 }

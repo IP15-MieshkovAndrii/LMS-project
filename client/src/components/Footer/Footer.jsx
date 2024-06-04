@@ -1,18 +1,19 @@
 import React from "react";
 import "./Footer.scss";
-import { logoutUser } from "../../services/api";
+import { useDispatch } from "react-redux";
+import { logout } from "../../features/auth/authActions";
+
 
 
 const Footer = () => {
-
-    const logout = async(event) => {
+    const dispatch = useDispatch();
+    const logoutButton = async(event) => {
         event.preventDefault();
         
         try {
-            const response = await logoutUser()
-            const result = await response.json();
+            dispatch(logout());
+            console.log("User logged out successfully");
   
-            console.log(result.message)
         } catch (error) {
             console.log(error)
         }
@@ -23,7 +24,7 @@ const Footer = () => {
             <div className="content-container">
                 <p><a href="/about">About</a></p>
                 <p><a href="/about">Privacy</a></p>
-                <p onClick={logout}>Log out</p>
+                <p className="logout" onClick={logoutButton}>Log out</p>
             </div>
             <div className="right content-container"
                 onClick={() => window.location.href = 'mailto:andrey2004112@gmail.com'}>

@@ -1,11 +1,11 @@
 const jwt = require('jsonwebtoken');
 
 const sendToken = (user, statusCode, reply) => {
-    const accessToken = jwt.sign({ id: user.id, role: user.role }, process.env.ACCESS_TOKEN_SECRET, {
+    const accessToken = jwt.sign({ id: user._id, role: user.role }, process.env.ACCESS_TOKEN_SECRET, {
         expiresIn: process.env.ACCESS_EXPIRES,
     });
 
-    const refreshToken = jwt.sign({ id: user.id, role: user.role }, process.env.REFRESH_TOKEN_SECRET, {
+    const refreshToken = jwt.sign({ id: user._id, role: user.role }, process.env.REFRESH_TOKEN_SECRET, {
         expiresIn: process.env.REFRESH_EXPIRES,
     });
 
@@ -13,7 +13,7 @@ const sendToken = (user, statusCode, reply) => {
         path: '/',
         domain: 'localhost',
         expires: new Date(Date.now() + process.env.ACCESS_EXPIRES),
-        httpOnly: true,
+        httpOnly: false,
         sameSite: "Strict",
         secure: true,
     };
@@ -22,7 +22,7 @@ const sendToken = (user, statusCode, reply) => {
         path: '/',
         domain: 'localhost',
         expires: new Date(Date.now() + process.env.REFRESH_EXPIRES),
-        httpOnly: true,
+        httpOnly: false,
         sameSite: "Strict",
         secure: true,
     };
@@ -32,7 +32,7 @@ const sendToken = (user, statusCode, reply) => {
 
     return reply.code(statusCode).send({
         success: true,
-        message: 'User was activated!',
+        message: 'User was logged in!',
     });
 };
 

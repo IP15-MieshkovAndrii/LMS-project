@@ -19,3 +19,25 @@
         cursor: pointer;
     }
 }
+
+.logout {
+    cursor: pointer;
+}
+
+
+@media only screen and (max-width: 600px) { 
+
+    .footer {
+        width: calc(100% - 2em);
+        padding: 0.5rem 1rem;
+        p {
+            font-size: 3vw;
+        }
+
+        .mail {
+            width: 10vw;
+        }
+        
+    }
+
+}

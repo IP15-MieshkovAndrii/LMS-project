@@ -9,72 +9,6 @@ const registerUser = async(req, reply) => {
     try {
         const {name, email, password, role} = req.body;
 
-        const userEmail = await User.findOne({ email });
-
-        if(userEmail) {
-            return reply.code(400).send({ errorMessage: "Email already exist!" })
-        }
-
-        const user = {
-            name, 
-            email,
-            password,
-            role
-        }
-
-        const activationToken = createActivationToken(user);
-
-
-        const activationUrl = `${process.env.URL}/activate?token=${activationToken}`;
-
-        try {
-            await sendMail({
-              email:user.email,
-              subject:"Activate Your Account",
-              message: `Hello ${user.name}, please click on the link to activate your account: <a href="${activationUrl}">Activate Account</a>.<br>Link will expire after 5 minutes!`
-            })
-
-            reply.status(201).send({
-              success:true,
-              message:`Please check your email:- ${user.email} to activate your account`
-            })
-            
-          } catch (error) {
-            return reply.code(500).send({ errorMessage: error.message })
-            
-        }
-
-
-        
-    } catch (error) {
-        return reply.code(400).send({ errorMessage: error.message })
-    }
-  
-}
-
-const createActivationToken=(user) => {
-
-    return token = jwt.sign(user, process.env.ACTIVATION_SECRET, {
-      expiresIn: "5m",
-    });
-
-}
-
-const activateUser = async(req, reply) => {
-    try {
-        const { activationToken } = req.body;
-
-        const newUser = jwt.verify(
-            activationToken,
-            process.env.ACTIVATION_SECRET
-        );
-
-        if (!newUser) {
-            return reply.code(400).send({ errorMessage: "Invalid token!" })
-        }
-
-        const { name, email, password, role } = newUser;
-
         const userEmail = await User.findOne({email})
         let newPassword = await bcrypt.hash(password, 10);
 
@@ -112,11 +46,6 @@ const loginUser = async(req, reply) => {
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
 
-        res.status(200).json({
-            success: true,
-            user,
-        });
-
         if (!isPasswordValid) {
                 return reply.code(400).send({ errorMessage: "Please provide the correct information!" })
         }
@@ -130,7 +59,14 @@ const loginUser = async(req, reply) => {
 
 const logoutUser = async(req, reply) => {
     try{
-        reply.setCookie("token", null, {
+        reply.setCookie("accessToken", null, {
+            path: '/',
+            domain: 'localhost',
+            expires: new Date(Date.now()),
+            httpOnly: true,
+            sameSite: "none",
+            secure: true,
+        }).setCookie("refreshToken", null, {
             path: '/',
             domain: 'localhost',
             expires: new Date(Date.now()),
@@ -148,25 +84,28 @@ const logoutUser = async(req, reply) => {
 
 const getUser = async(req, reply) => {
     try {
-        const { accessToken } = request.query
+        const { accessToken } = req.query
         const object = jwt.verify(
             accessToken,
-            process.env.ACCESS_TOKEN
+            process.env.ACCESS_TOKEN_SECRET
         );
         const id = object.id;
 
-        const user = await User.findOne({id})
+        const user = await User.findOne({_id: id})
 
         if(!user) {
             return reply.code(400).send({ errorMessage: "User doesn't exist!" })
         }
       
-        res.code(200).send({
+        reply.code(200).send({
             success: true,
             user,
         });
 
     } catch (error) {
+        if (error.name === 'TokenExpiredError') {
+            return reply.code(401).send({ errorMessage: 'Access token expired' });
+        }
         return reply.code(500).send({ errorMessage: error.message })
     }
 }
@@ -191,17 +130,19 @@ const updateAccessToken = async (req, reply) => {
 
         return sendToken(user, 201, reply);
     } catch (error) {
+        if (error.name === 'TokenExpiredError') {
+            return reply.code(402).send({ errorMessage: 'Refresh token expired' });
+        }
         return reply.code(500).send({ errorMessage: error.message });
     }
 };
 
 const updateUserInfo = async (req, reply) => {
     try {
-        const { name, email } = req.body;
-        const userId = req.user._id;
+        const { name, email, id } = req.body;
 
-        const user = await User.findById(userId);
-        if (!user) {
+        const newUser = await User.findById(id);
+        if (!newUser) {
             return reply.code(404).send({ errorMessage: "User not found!" });
         }
 
@@ -210,18 +151,18 @@ const updateUserInfo = async (req, reply) => {
             if (isEmailExist) {
                 return reply.code(400).send({ errorMessage: "Email already exists!" });
             }
-            user.email = email;
+            newUser.email = email;
         }
 
         if (name) {
-            user.name = name;
+            newUser.name = name;
         }
 
-        await user.save();
+        await newUser.save();
 
         reply.code(200).send({
             success: true,
-            user,
+            newUser,
         });
     } catch (error) {
         return reply.code(500).send({ errorMessage: error.message });
@@ -230,22 +171,29 @@ const updateUserInfo = async (req, reply) => {
 
 const updatePassword = async (req, reply) => {
     try {
-        const { oldPassword, newPassword } = req.body;
-        const userId = req.user._id;
+        const { oldPassword, newPassword, id} = req.body;
 
-        const user = await User.findById(userId);
+        console.log(oldPassword, newPassword, id)
+
+        console.log('12345678987654323456789')
+
+        const user = await User.findById(id);
         if (!user) {
+            console.log('------------------------------')
             return reply.code(404).send({ errorMessage: "User not found!" });
         }
+
+        console.log(user.password);
 
         const isPasswordMatch = await bcrypt.compare(oldPassword, user.password);
 
         if (!isPasswordMatch) {
+            console.log('================================')
             return reply.code(400).send({ errorMessage: "Invalid old password!" });
         }
 
         if (newPassword) {
-            user.password = newPassword;
+            user.password = await bcrypt.hash(newPassword, 10);;
         }
 
         await user.save();
@@ -261,23 +209,26 @@ const updatePassword = async (req, reply) => {
 
 const updateProfilePicture = async (req, reply) => {
     try {
-        const { avatar } = req.body;
-        const userId = req.user._id;
+        const { avatarUrl, user } = req.body;
 
-        const user = await User.findById(userId);
-        if (!user) {
+        const id = JSON.parse(user)._id
+
+        console.log('****************************************')
+        console.log(id)
+        console.log(user)
+        const newUser = await User.findById(id);
+        if (!newUser) {
             return reply.code(404).send({ errorMessage: "User not found!" });
         }
 
-        if (avatar) {
-            user.avatar = avatar;
+        if (avatarUrl) {
+            newUser.avatar = avatarUrl;
         }
-
-        await user.save();
+        await newUser.save();
 
         reply.code(200).send({
             success: true,
-            user,
+            newUser,
         });
     } catch (error) {
         return reply.code(500).send({ errorMessage: error.message });
@@ -307,9 +258,22 @@ const deleteUser = async (req, reply) => {
     }
 };
 
+const getAllUsers = async(req, reply) => {
+    try {
+        const users = await User.find()
+
+        reply.code(200).send({
+            success: true,
+            users,
+        });
+
+    } catch (error) {
+        return reply.code(400).send({ errorMessage: error.message })
+    }
+}
+
 module.exports = {
     registerUser,
-    activateUser,
     loginUser,
     logoutUser,
     getUser,
@@ -317,5 +281,6 @@ module.exports = {
     updateAccessToken,
     updatePassword,
     updateProfilePicture,
-    deleteUser
+    deleteUser,
+    getAllUsers
 }
