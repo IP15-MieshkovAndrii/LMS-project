@@ -4,7 +4,6 @@ require("dotenv").config();
 const cors = require('@fastify/cors');
 const connectDB = require('./utils/db');
 
-
 fastify.register(fastifyCookie, {
     secret: "my-secret", 
     hook: 'onRequest', 

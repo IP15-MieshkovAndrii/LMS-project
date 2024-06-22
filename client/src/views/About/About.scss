@@ -6,6 +6,8 @@
   
     .section {
       margin-bottom: 40px;
+
+
   
       h2 {
         font-size: 2rem;
@@ -15,6 +17,15 @@
       p {
         font-size: 1.2rem;
       }
+    }
+
+    .about-title {
+        text-align: center;
+        h1 {
+            font-size: 3rem;
+            margin-inline-end: 0;
+            margin-bottom: 0;
+          }
     }
   }
   
